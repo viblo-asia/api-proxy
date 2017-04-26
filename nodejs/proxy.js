@@ -1,9 +1,7 @@
-import ProxyMiddleware from 'http-proxy-middleware'
+const api = require('./config').api
 
-const api = process.env.APP_URL || 'http://localhost:8000'
-
-export default ProxyMiddleware('/api', {
-    target: api,
+module.exports = require('http-proxy-middleware')('/api', {
+    target: api.url,
     pathRewrite: {
         '^/api': ''
     },

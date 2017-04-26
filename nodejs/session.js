@@ -1,24 +1,19 @@
-import session from 'express-session'
-import redisConnection from 'connect-redis'
+const session = require('express-session')
 
-const RedisStore = redisConnection(session)
+const RedisStore = require('connect-redis')(session)
 
-const store = new RedisStore({
-    host: process.env.REDIS_HOST || '127.0.0.1',
-    port: process.env.REDIS_PORT || '6379',
-    pass: process.env.REDIS_PASSWORD || null,
-})
+const secret = require('./secret')
+
+const store = new RedisStore(secret.redis)
 
 const cookie = {
     maxAge: 86400000,
 }
 
-let SessionMiddleware = session({
-    secret: process.env.NODE_KEY,
+module.exports = session({
+    secret: secret.key,
     resave: false,
     saveUninitialized: false,
     cookie,
     store,
 })
-
-export default SessionMiddleware

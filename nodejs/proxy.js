@@ -7,9 +7,8 @@ module.exports = proxy('/api', {
         '^/api': ''
     },
     onProxyReq (proxyReq, req, res) {
-        let auth = (req.session && req.session.token)
-            ? `${req.session.token.token_type} ${req.session.token.access_token}`
-            : ''
-        proxyReq.setHeader('authorization', auth)
+        if (req.session && req.session.token) {
+            proxyReq.setHeader('authorization', `${req.session.token.token_type} ${req.session.token.access_token}`)
+        }
     },
 })

@@ -4,7 +4,7 @@ require('dotenv').config({
 
 let makeHostConfig = (env, prefix) => {
     let host = env[prefix + '_HOST'] || '127.0.0.1'
-    let port = env[prefix + '_PORT'] || 3030
+    let port = parseInt(env[prefix + '_PORT'], 10) || 3030
     let https = env[prefix + '_HTTPS'] === 'true' || env[prefix + '_HTTPS'] === true
 
     let default_port, protocol
@@ -33,6 +33,7 @@ const env = process.env.APP_ENV || 'local'
 module.exports = {
     node: makeHostConfig(process.env, 'NODE'),
     api: makeHostConfig(process.env, 'API'),
+    external: makeHostConfig(process.env, 'APP'),
     websocket: makeHostConfig(process.env, 'ECHO'),
     debug: process.env.APP_DEBUG === 'true' || process.env.APP_DEBUG === true,
     env,

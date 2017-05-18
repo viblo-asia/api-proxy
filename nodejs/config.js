@@ -30,6 +30,10 @@ let makeHostConfig = (env, prefix) => {
 
 const env = process.env.APP_ENV || 'local'
 
+const atom = {
+    announcement_url: process.env.ATOM_PLUGIN_ANNOUNCEMENT_URL || '#',
+}
+
 module.exports = {
     node: makeHostConfig(process.env, 'NODE'),
     api: makeHostConfig(process.env, 'API'),
@@ -39,4 +43,5 @@ module.exports = {
     env,
     production: env === 'production',
     dev: env !== 'production',
+    atom,
 }

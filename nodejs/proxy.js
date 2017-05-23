@@ -4,6 +4,7 @@ const proxy = require('http-proxy-middleware')
 module.exports = proxy('/api', {
     target: api.url,
     secure: false,
+    changeOrigin: true,
     pathRewrite: {
         '^/api': ''
     },

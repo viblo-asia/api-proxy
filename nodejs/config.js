@@ -44,4 +44,5 @@ module.exports = {
     production: env === 'production',
     dev: env !== 'production',
     atom,
+    analytics_track_id: process.env.GOOGLE_ANALYTICS_TRACK_ID
 }

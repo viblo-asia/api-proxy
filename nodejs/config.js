@@ -38,7 +38,10 @@ module.exports = {
     node: makeHostConfig(process.env, 'NODE'),
     api: makeHostConfig(process.env, 'API'),
     external: makeHostConfig(process.env, 'APP'),
-    websocket: makeHostConfig(process.env, 'ECHO'),
+    websocket: {
+        host: process.env.ECHO_HOST || 'localhost',
+        port: process.env.ECHO_PORT || '6002',
+    },
     debug: process.env.APP_DEBUG === 'true' || process.env.APP_DEBUG === true,
     env,
     production: env === 'production',

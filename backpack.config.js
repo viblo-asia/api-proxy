@@ -5,6 +5,7 @@ module.exports = {
 
     webpack: (config, options, webpack) => {
         config.entry.main = './server.js'
+        config.entry.echo = './nodejs/echo.js'
 
         return config
     },

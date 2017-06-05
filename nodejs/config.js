@@ -42,7 +42,7 @@ module.exports = {
         host: process.env.ECHO_HOST || 'localhost',
         port: process.env.ECHO_PORT || '6002',
     },
-    debug: process.env.APP_DEBUG === 'true' || process.env.APP_DEBUG === true,
+    debug: process.env.NODE_DEBUG === 'true' || process.env.NODE_DEBUG === true,
     env,
     production: env === 'production',
     dev: env !== 'production',

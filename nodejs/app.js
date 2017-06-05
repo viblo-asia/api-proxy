@@ -19,6 +19,7 @@ const cookie = require('cookie-parser')()
 const csrf = require('csurf')()
 const axios = require('axios')
 const viewCounter = require('./middleware/views')
+var timeout = require('connect-timeout')
 
 debug('Components loaded.')
 
@@ -26,9 +27,11 @@ const app = require('express')()
 
 process.on('unhandledRejection', r => console.log(r))
 
+app.use(timeout('4s'))
 app.use(session)
 app.use(cookie)
 app.use(csrf)
+app.use(haltOnTimedout)
 
 axios.interceptors.request.use(function (request) {
     if (request.url.startsWith(config.node.url + '/api')) {
@@ -88,5 +91,9 @@ app.use('/admin', (req, res, next) => {
 app.get('/sitemap.xml', require('./routes/sitemap'))
 
 app.use(nuxt.render)
+
+function haltOnTimedout (req, res, next) {
+    if (!req.timedout) next()
+}
 
 module.exports = app

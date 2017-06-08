@@ -19,6 +19,8 @@ let makeHostConfig = (env, prefix) => {
 
     let url = protocol + '://' + host + (port === default_port ? '' : ':' + port)
 
+    process.env[prefix + '_URL'] = url
+
     return {
         host,
         port,
@@ -37,6 +39,7 @@ const atom = {
 module.exports = {
     node: makeHostConfig(process.env, 'NODE'),
     api: makeHostConfig(process.env, 'API'),
+    proxy: makeHostConfig(process.env, 'PROXY'),
     external: makeHostConfig(process.env, 'APP'),
     websocket: {
         host: process.env.ECHO_HOST || 'localhost',

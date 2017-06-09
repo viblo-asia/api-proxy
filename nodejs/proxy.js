@@ -5,6 +5,7 @@ module.exports = proxy('/api', {
     target: api.url,
     secure: false,
     changeOrigin: true,
+    xfwd: true,
     pathRewrite: {
         '^/api': ''
     },

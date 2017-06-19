@@ -3,6 +3,7 @@ const config = require('./config')
 
 const viewCounter = require('./middleware/views')
 const proxy = require('./proxy')
+const csrf = require('csurf')()
 
 app.get([
     '/api/api/admin',
@@ -10,6 +11,7 @@ app.get([
     '/api/api/notifications',
     '/api/api/publish',
     '/api/settings',
+    '/api/user-counters',
 ], (req, res, next) => {
     res.header('Cache-Control', 'no-cache, no-store, must-revalidate')
     res.header('Pragma', 'no-cache')
@@ -17,6 +19,21 @@ app.get([
 })
 
 app.get(['/api/posts/:post'], viewCounter)
+
+app.use((req, res, next) => {
+    if (!req.path.startsWith('/api/broadcasting')) {
+        csrf(req, res, next)
+    }
+    next()
+})
+
+app.use((req, res, next) => {
+    if (req.csrfToken) {
+        res.cookie('XSRF-TOKEN', req.csrfToken(), {})
+        res.locals.csrftoken = req.csrfToken()
+    }
+    next()
+})
 
 app.use('/api', proxy)
 

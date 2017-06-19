@@ -7,6 +7,7 @@ module.exports = () => {
 
     const session = require('./session')
     const cookie = require('cookie-parser')()
+    const csrf = require('csurf')()
 
     debug('Components loaded.')
 
@@ -14,6 +15,13 @@ module.exports = () => {
 
     app.use(session)
     app.use(cookie)
+    app.use(csrf)
+
+    app.use((req, res, next) => {
+        res.cookie('XSRF-TOKEN', req.csrfToken(), {})
+        res.locals.csrftoken = req.csrfToken()
+        next()
+    })
 
     app.use((req, res, next) => {
         // Share public config to frontend

@@ -1,6 +1,4 @@
 module.exports = () => {
-    const config = require('./config')
-
     const debug = require('debug')('viblo-frontend')
 
     debug('Loading components.')
@@ -20,12 +18,6 @@ module.exports = () => {
     app.use((req, res, next) => {
         res.cookie('XSRF-TOKEN', req.csrfToken(), {})
         res.locals.csrftoken = req.csrfToken()
-        next()
-    })
-
-    app.use((req, res, next) => {
-        // Share public config to frontend
-        req.config = config
         next()
     })
 

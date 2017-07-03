@@ -1,5 +1,6 @@
 const api = require('./config').api
 const proxy = require('http-proxy-middleware')
+const encryptToken = require('./encryptToken')
 
 module.exports = proxy('/api', {
     target: api.url,
@@ -10,8 +11,9 @@ module.exports = proxy('/api', {
         '^/api': ''
     },
     onProxyReq (proxyReq, req, res) {
-        if (req.session && req.session.token) {
-            proxyReq.setHeader('authorization', `${req.session.token.token_type} ${req.session.token.access_token}`)
+        const token = encryptToken.token(req)
+        if (token) {
+            proxyReq.setHeader('authorization', token)
         }
     },
 })

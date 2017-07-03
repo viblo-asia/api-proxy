@@ -1,5 +1,6 @@
 const app = require('./app')()
 const config = require('./config')
+const cookieParser = require('cookie-parser')
 
 const viewCounter = require('./middleware/views')
 const proxy = require('./proxy')
@@ -18,6 +19,7 @@ app.get([
 
 app.get(['/api/posts/:post'], viewCounter)
 
+app.use(cookieParser())
 app.use('/api', proxy)
 
 module.exports = {

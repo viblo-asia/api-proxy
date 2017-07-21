@@ -17,7 +17,6 @@ module.exports = () => {
 
     app.use((req, res, next) => {
         res.cookie('XSRF-TOKEN', req.csrfToken(), {})
-        res.locals.csrftoken = req.csrfToken()
         next()
     })
 
@@ -29,6 +28,13 @@ module.exports = () => {
             res.header('Cache-Control', 'public, max-age=5')
         }
         next()
+    })
+
+    app.use((err, req, res, next) => {
+        if (err.code !== 'EBADCSRFTOKEN') return next(err)
+        res.status(403).json({
+            error: 'session has expired or been tampered with'
+        })
     })
 
     return app

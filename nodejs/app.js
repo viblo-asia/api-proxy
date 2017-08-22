@@ -15,6 +15,9 @@ module.exports = () => {
     app.use(cookie)
     app.use(csrf)
 
+    const proxies = require('./secret').proxies
+    app.set('trust proxy', proxies)
+
     app.use((req, res, next) => {
         res.cookie('XSRF-TOKEN', req.csrfToken(), {})
         next()

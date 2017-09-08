@@ -10,6 +10,12 @@ module.exports = proxy('/api', {
     pathRewrite: {
         '^/api': ''
     },
+
+    /**
+     * @param {Request} proxyReq
+     * @param {Request} req
+     * @param {Response} res
+     */
     onProxyReq (proxyReq, req, res) {
         const token = encryptToken.token(req)
         if (token) {

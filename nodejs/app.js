@@ -1,5 +1,5 @@
-module.exports = () => {
-    const debug = require('debug')('viblo-frontend')
+module.exports = (name = 'viblo-frontend') => {
+    const debug = require('debug')(name)
 
     debug('Loading components.')
 

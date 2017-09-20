@@ -17,19 +17,10 @@ module.exports = (name = 'viblo-frontend') => {
 
     const proxies = require('./secret').proxies
     app.set('trust proxy', proxies)
+    app.set('etag', false)
 
     app.use((req, res, next) => {
         res.cookie('XSRF-TOKEN', req.csrfToken(), {})
-        next()
-    })
-
-    app.use((req, res, next) => {
-        if (req.session && (req.session.token || req.session.user || req.session.settings)) {
-            res.header('Cache-Control', 'no-cache, no-store, must-revalidate')
-            res.header('Pragma', 'no-cache')
-        } else {
-            res.header('Cache-Control', 'public, max-age=5')
-        }
         next()
     })
 

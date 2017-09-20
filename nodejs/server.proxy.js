@@ -8,20 +8,7 @@ const viewCounter = require('./middleware/views')
 const proxy = require('./proxy')
 
 const setup = (app) => {
-    app.get([
-        '/api/api/admin',
-        '/api/api/user',
-        '/api/api/notifications',
-        '/api/api/publish',
-        '/api/settings',
-    ], (req, res, next) => {
-        res.header('Cache-Control', 'no-cache, no-store, must-revalidate')
-        res.header('Pragma', 'no-cache')
-        next()
-    })
-
     app.get(['/api/posts/:post'], viewCounter)
-
     app.use(cookieParser())
 }
 

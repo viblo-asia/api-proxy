@@ -1,6 +1,7 @@
 const { BatchRecorder, ConsoleRecorder } = require('zipkin')
 const { HttpLogger } = require('zipkin-transport-http')
 const config = require('../secret').tracing.zipkin
+const debug = require('../config').debug
 
 let recorder
 if (config !== null) {
@@ -9,8 +10,15 @@ if (config !== null) {
             endpoint: `${config.url}/api/v1/spans`
         })
     })
-} else {
+} else if (debug) {
     recorder = new ConsoleRecorder()
+} else {
+    recorder = {
+        record: function record () {},
+        toString: function toString () {
+            return 'NullRecorder'
+        },
+    }
 }
 
 module.exports = recorder

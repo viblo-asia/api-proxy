@@ -17,19 +17,21 @@ const {
 } = require('./util')
 
 module.exports = function ({
-       serviceName = 'unknown',
-       host = null,
-       ip = '0.0.0.0',
-       port = 80,
-   }) {
+    serviceName = 'unknown',
+    host = null,
+    ip = '0.0.0.0',
+    port = 80,
+}) {
     const remote = new LocalAddr({
         host: host instanceof InetAddress ? host : new InetAddress(ip),
         port,
     })
+
     return {
         startTrace (request, rpc, metadata = {}) {
             const formattedUrl = formatRequestUrl(request)
-            return tracer.letChildId(traceId => {
+
+            return tracer.letChildId((traceId) => {
                 tracer.recordServiceName(serviceName)
                 tracer.recordRpc(rpc)
                 for (let key in metadata) {
@@ -38,7 +40,9 @@ module.exports = function ({
                 tracer.recordBinary('http.url', formattedUrl)
                 tracer.recordAnnotation(remote)
                 tracer.recordAnnotation(new ClientSend())
+
                 const { headers } = addZipkinHeaders({}, traceId)
+
                 return { traceId, headers }
             })
         },

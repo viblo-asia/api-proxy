@@ -15,8 +15,8 @@ const tracer = new Tracer({
     ctxImpl: new CLSContext('zipkin'),
     recorder: new BatchRecorder({
         logger: new HttpLogger({
-            endpoint: `http://${ZIPKIN_HOST}:${ZIPKIN_PORT}/api/v1/spans`
-        })
+            endpoint: `http://${ZIPKIN_HOST}:${ZIPKIN_PORT}/api/v1/spans`,
+        }),
     }),
 })
 

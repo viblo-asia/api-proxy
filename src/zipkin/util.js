@@ -1,7 +1,7 @@
 const url = require('url')
 
-module.exports.formatRequestUrl = req => {
-    const parsed = url.parse(req['originalUrl'])
+module.exports.formatRequestUrl = (req) => {
+    const parsed = url.parse(req.originalUrl)
 
     return url.format({
         protocol: req.protocol,

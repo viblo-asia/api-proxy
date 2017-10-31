@@ -25,8 +25,10 @@ if (PROXY_PREFIX) {
 
 module.exports = async () => {
     let wrapper = null
+
     if (ZIPKIN_ENABLED) {
         let ip = await lookup(hostname)
+
         wrapper = require('./zipkin/wrapper')({
             serviceName,
             ip,
@@ -43,11 +45,11 @@ module.exports = async () => {
 
         onProxyReq (proxyReq, req, /* res */) {
             if (req.cookies && req.cookies[AUTH_TOKEN_COOKIE]) {
-                const authCookie = req.cookies[AUTH_TOKEN_COOKIE]
-                proxyReq.setHeader('authorization', decrypt(authCookie))
+                proxyReq.setHeader('authorization', decrypt(req.cookies[AUTH_TOKEN_COOKIE]))
             }
             if (ZIPKIN_ENABLED) {
                 const { traceId, headers } = wrapper.startTrace(req, `${req.method.toUpperCase()} ${req.url}`)
+
                 req.traceId = traceId
                 for (let key in headers) {
                     proxyReq.setHeader(key, headers[key])

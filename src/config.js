@@ -11,13 +11,17 @@ const {
     num,
 } = envalid
 
-const commaArray = makeValidator(input => {
-    if (typeof input !== 'string') throw new EnvError(`Not a string: "${input}"`)
+const commaArray = makeValidator((input) => {
+    if (typeof input !== 'string') {
+        throw new EnvError(`Not a string: "${input}"`)
+    }
     return input.split(',')
 })
 
-const base64Str = makeValidator(input => {
-    if (typeof input !== 'string' || input.length === 0) throw new EnvError(`Not a string: "${input}"`)
+const base64Str = makeValidator((input) => {
+    if (typeof input !== 'string' || input.length === 0) {
+        throw new EnvError(`Not a string: "${input}"`)
+    }
     // Decode Laravel-style base64-encoded key
     if (input.startsWith('base64:')) {
         return Buffer.from(input.substr(7), 'base64').toString('utf8')

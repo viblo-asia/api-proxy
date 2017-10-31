@@ -10,6 +10,7 @@ const {
 
 // Setup Express application
 const app = require('express')()
+
 app.set('trust proxy', TRUST_PROXIES)
 app.set('etag', ETAG_ENABLE)
 
@@ -42,9 +43,12 @@ app.use((req, res, next) => {
 
 // Handle XSRF token error
 app.use((err, req, res, next) => {
-    if (err.code !== 'EBADCSRFTOKEN') return next(err)
+    if (err.code !== 'EBADCSRFTOKEN') {
+        return next(err)
+    }
+
     res.status(403).json({
-        error: 'session has expired or been tampered with'
+        error: 'session has expired or been tampered with',
     })
 })
 

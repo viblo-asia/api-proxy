@@ -4,13 +4,7 @@ const cookieParser = require('cookie-parser')
 const zipkinMiddleware = require('./middleware/zipkin')
 const tracer = require('./lib/tracer')
 
-const viewCounter = require('./middleware/views')
 const proxy = require('./proxy')
-
-const setup = (app) => {
-    app.get(['/api/posts/:post'], viewCounter)
-    app.use(cookieParser())
-}
 
 module.exports = {
     listen: (port = null, host = null) => new Promise((resolve, reject) => {

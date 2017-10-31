@@ -1,0 +1,33 @@
+{
+  "name": "viblo-api-proxy",
+  "version": "1.0.0",
+  "description": "Viblo API proxy for web app",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.6.0",
+    "npm": ">=5.0.0"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "connect-redis": "^3.3.2",
+    "cookie-parser": "^1.4.3",
+    "crypto-js": "^3.1.9-1",
+    "csurf": "^1.9.0",
+    "envalid": "^4.1.1",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "http-proxy-middleware": "^0.17.4",
+    "redis": "^2.8.0",
+    "zipkin": "^0.10.1",
+    "zipkin-context-cls": "^0.6.1",
+    "zipkin-instrumentation-express": "^0.10.1",
+    "zipkin-transport-http": "^0.10.1"
+  }
+}

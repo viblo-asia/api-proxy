@@ -43,9 +43,13 @@ module.exports = async () => {
         xfwd: true,
         pathRewrite,
 
-        onProxyReq (proxyReq, req, /* res */) {
+        onProxyReq (proxyReq, req, res) {
             if (req.cookies && req.cookies[AUTH_TOKEN_COOKIE]) {
-                proxyReq.setHeader('authorization', decrypt(req.cookies[AUTH_TOKEN_COOKIE]))
+                try {
+                    proxyReq.setHeader('authorization', decrypt(req.cookies[AUTH_TOKEN_COOKIE]))
+                } catch (e) {
+                    res.clearCookie(AUTH_TOKEN_COOKIE)
+                }
             }
             if (ZIPKIN_ENABLED) {
                 const { traceId, headers } = wrapper.startTrace(req, `${req.method.toUpperCase()} ${req.url}`)

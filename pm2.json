@@ -1,0 +1,11 @@
+{
+  "apps": [
+    {
+      "name": "viblo-proxy",
+      "script": "index.js",
+      "env": {
+        "production": true
+      }
+    }
+  ]
+}

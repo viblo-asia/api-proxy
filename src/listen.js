@@ -5,6 +5,8 @@ const {
     SERVICE_NAME,
 } = require('./config')
 
+const debug = require('debug')('proxy:init')
+
 const app = require('./app')
 
 if (ZIPKIN_ENABLED) {
@@ -20,10 +22,13 @@ if (ZIPKIN_ENABLED) {
 const loadProxy = require('./proxy')
 
 module.exports = async () => {
+    debug('Setting up application.')
     const proxy = await loadProxy()
 
     app.use(proxy)
     app.set('port', PORT)
+
+    debug('Launching server.')
     app.listen(PORT, HOST, () => {
         // eslint-disable-next-line no-console
         console.log(`Proxy listening on ${HOST}:${PORT}`)

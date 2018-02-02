@@ -10,6 +10,8 @@ const {
     decrypt,
 } = require('./crypto')
 
+const debug = require('debug')('proxy:handler')
+
 const url = require('url')
 const lookup = require('bluebird').promisify(require('dns').lookup)
 const proxy = require('http-proxy-middleware')
@@ -44,7 +46,9 @@ module.exports = async () => {
         pathRewrite,
 
         onProxyReq (proxyReq, req, res) {
+            debug('Received request')
             if (req.cookies && req.cookies[AUTH_TOKEN_COOKIE]) {
+                debug('Setting up cookies')
                 try {
                     proxyReq.setHeader('authorization', decrypt(req.cookies[AUTH_TOKEN_COOKIE]))
                 } catch (e) {
@@ -52,6 +56,7 @@ module.exports = async () => {
                 }
             }
             if (ZIPKIN_ENABLED) {
+                debug('Applying Zipkin trace ID')
                 const { traceId, headers } = wrapper.startTrace(req, `${req.method.toUpperCase()} ${req.url}`)
 
                 req.traceId = traceId
@@ -61,7 +66,9 @@ module.exports = async () => {
             }
         },
         onProxyRes (proxyRes, req, /* res */) {
+            debug('Received response.')
             if (ZIPKIN_ENABLED) {
+                debug('Finishing Zipkin trace.')
                 wrapper.endTrace(req.traceId, {
                     'http.status_code': proxyRes.statusCode.toString(),
                 })

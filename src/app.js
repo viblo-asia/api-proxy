@@ -5,8 +5,11 @@ const {
     ETAG_ENABLE,
     REDIS_HOST,
     REDIS_PORT,
-    XSRF_TOKEN_COOKIE,
 } = require('./config')
+
+const csrf = require('./csrf')
+const redis = require('redis')
+const cookieParser = require('cookie-parser')()
 
 // Setup Express application
 const app = require('express')()
@@ -15,7 +18,7 @@ app.set('trust proxy', TRUST_PROXIES)
 app.set('etag', ETAG_ENABLE)
 
 // // Setup Middleware
-app.use(require('cookie-parser')())
+app.use(cookieParser)
 
 const session = require('express-session')
 const RedisStore = require('connect-redis')(session)
@@ -28,18 +31,14 @@ app.use(session({
         maxAge: 86400000,
     },
     store: new RedisStore({
-        client: require('redis').createClient({
+        client: redis.createClient({
             host: REDIS_HOST,
             port: REDIS_PORT,
         }),
     }),
 }))
 
-app.use(require('csurf')())
-app.use((req, res, next) => {
-    res.cookie(XSRF_TOKEN_COOKIE, req.csrfToken(), {})
-    next()
-})
+app.use(csrf)
 
 // Handle XSRF token error
 app.use((err, req, res, next) => {

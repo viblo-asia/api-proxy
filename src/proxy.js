@@ -46,12 +46,12 @@ module.exports = async () => {
         pathRewrite,
 
         onProxyReq (proxyReq, req, res) {
-            debug('Received request')
+            debug(req.method, req.url)
             if (req.cookies && req.cookies[AUTH_TOKEN_COOKIE]) {
-                debug('Setting up cookies')
                 try {
                     proxyReq.setHeader('authorization', decrypt(req.cookies[AUTH_TOKEN_COOKIE]))
                 } catch (e) {
+                    debug('Cannot decrypt Auth token:', e.message)
                     res.clearCookie(AUTH_TOKEN_COOKIE)
                 }
             }
@@ -65,8 +65,7 @@ module.exports = async () => {
                 }
             }
         },
-        onProxyRes (proxyRes, req, /* res */) {
-            debug('Received response.')
+        onProxyRes (proxyRes, req) {
             if (ZIPKIN_ENABLED) {
                 debug('Finishing Zipkin trace.')
                 wrapper.endTrace(req.traceId, {

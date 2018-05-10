@@ -29,10 +29,6 @@ const base64Str = makeValidator((input) => {
     return input.toString()
 })
 
-if (typeof process.env.ENCRYPT_KEY === 'undefined') {
-    process.env.ENCRYPT_KEY = process.env.APP_KEY
-}
-
 module.exports = cleanEnv(process.env, {
     APP_KEY: base64Str({
         desc: 'Encryption key',
@@ -76,9 +72,6 @@ module.exports = cleanEnv(process.env, {
         default: 'Auth',
         desc: 'Auth token cookie name',
     }),
-    ENCRYPT_KEY: str({
-        desc: 'Auth cookie encryption key',
-    }),
     SESSION_COOKIE_MAX_AGE: num({
         default: 86400000,
         desc: 'Session cookie max age',
@@ -102,4 +95,6 @@ module.exports = cleanEnv(process.env, {
         default: '',
         desc: 'Proxy target service name',
     }),
+}, {
+    strict: true,
 })

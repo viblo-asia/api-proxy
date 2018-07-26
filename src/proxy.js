@@ -1,77 +1,46 @@
+const proxy = require('http-proxy-middleware');
+const debug = require('debug')('proxy:handler');
+
+const { decrypt } = require('./crypto');
+
 const {
     PROXY_TARGET,
     PROXY_PREFIX,
-    PROXY_TARGET_NAME,
     ZIPKIN_ENABLED,
-    AUTH_TOKEN_COOKIE,
-} = require('./config')
+    AUTH_TOKEN_COOKIE
+} = require('./config');
 
-const {
-    decrypt,
-} = require('./crypto')
+const { extendProxyOptions } = require('./zipkin/util');
 
-const debug = require('debug')('proxy:handler')
-
-const url = require('url')
-const lookup = require('bluebird').promisify(require('dns').lookup)
-const proxy = require('http-proxy-middleware')
-
-const { port, hostname } = url.parse(PROXY_TARGET)
-const serviceName = PROXY_TARGET_NAME || hostname
-
-const pathRewrite = {}
+const pathRewrite = {};
 
 if (PROXY_PREFIX) {
-    pathRewrite[`^${PROXY_PREFIX}`] = ''
+    pathRewrite[`^${PROXY_PREFIX}`] = '';
 }
 
 module.exports = async () => {
-    let wrapper = null
-
-    if (ZIPKIN_ENABLED) {
-        let ip = await lookup(hostname)
-
-        wrapper = require('./zipkin/wrapper')({
-            serviceName,
-            ip,
-            port,
-        })
-    }
-
-    return proxy('/api', {
+    let options = {
         target: PROXY_TARGET,
         secure: false,
         changeOrigin: true,
         xfwd: true,
         pathRewrite,
 
-        onProxyReq (proxyReq, req, res) {
-            debug(req.method, req.url)
+        onProxyReq(proxyReq, req, res) {
             if (req.cookies && req.cookies[AUTH_TOKEN_COOKIE]) {
                 try {
-                    proxyReq.setHeader('authorization', decrypt(req.cookies[AUTH_TOKEN_COOKIE]))
+                    proxyReq.setHeader('authorization', decrypt(req.cookies[AUTH_TOKEN_COOKIE]));
                 } catch (e) {
-                    debug('Cannot decrypt Auth token:', e.message)
-                    res.clearCookie(AUTH_TOKEN_COOKIE)
+                    debug('Cannot decrypt Auth token:', e.message);
+                    res.clearCookie(AUTH_TOKEN_COOKIE);
                 }
             }
-            if (ZIPKIN_ENABLED) {
-                debug('Applying Zipkin trace ID')
-                const { traceId, headers } = wrapper.startTrace(req, `${req.method.toUpperCase()} ${req.url}`)
+        }
+    };
 
-                req.traceId = traceId
-                for (let key in headers) {
-                    proxyReq.setHeader(key, headers[key])
-                }
-            }
-        },
-        onProxyRes (proxyRes, req) {
-            if (ZIPKIN_ENABLED) {
-                debug('Finishing Zipkin trace.')
-                wrapper.endTrace(req.traceId, {
-                    'http.status_code': proxyRes.statusCode.toString(),
-                })
-            }
-        },
-    })
-}
+    if (ZIPKIN_ENABLED) {
+        options = await extendProxyOptions(options);
+    }
+
+    return proxy('/api', options);
+};

@@ -1,60 +1,66 @@
-const tracer = require('./tracer')
-
 const {
     Annotation: {
         LocalAddr,
         ClientRecv,
-        ClientSend,
+        ClientSend
     },
     Request: {
-        addZipkinHeaders,
+        addZipkinHeaders
     },
-    InetAddress,
-} = require('zipkin')
+    InetAddress
+} = require('zipkin');
+
+const tracer = require('./tracer');
 
 const {
-    formatRequestUrl,
-} = require('./util')
+    formatRequestUrl
+} = require('./util');
 
-module.exports = function ({
+module.exports = ({
     serviceName = 'unknown',
     host = null,
     ip = '0.0.0.0',
-    port = 80,
-}) {
+    port = 80
+}) => {
     const remote = new LocalAddr({
         host: host instanceof InetAddress ? host : new InetAddress(ip),
-        port,
-    })
+        port
+    });
 
     return {
-        startTrace (request, rpc, metadata = {}) {
-            const formattedUrl = formatRequestUrl(request)
+        startTrace(request, rpc, metadata = {}) {
+            const formattedUrl = formatRequestUrl(request);
 
             return tracer.letChildId((traceId) => {
-                tracer.recordServiceName(serviceName)
-                tracer.recordRpc(rpc)
-                for (let key in metadata) {
-                    tracer.recordBinary(key, metadata[key])
-                }
-                tracer.recordBinary('http.url', formattedUrl)
-                tracer.recordAnnotation(remote)
-                tracer.recordAnnotation(new ClientSend())
+                tracer.recordServiceName(serviceName);
+                tracer.recordRpc(rpc);
 
-                const { headers } = addZipkinHeaders({}, traceId)
+                const metadataKeys = Object.keys(metadata);
+                metadataKeys.forEach((key) => {
+                    tracer.recordBinary(key, metadata[key]);
+                });
 
-                return { traceId, headers }
-            })
+                tracer.recordBinary('http.url', formattedUrl);
+                tracer.recordAnnotation(remote);
+                tracer.recordAnnotation(new ClientSend());
+
+                const { headers } = addZipkinHeaders({}, traceId);
+
+                return { traceId, headers };
+            });
         },
 
-        endTrace (id, metadata = {}) {
+        endTrace(id, metadata = {}) {
             tracer.scoped(() => {
-                tracer.setId(id)
-                for (let key in metadata) {
-                    tracer.recordBinary(key, metadata[key])
-                }
-                tracer.recordAnnotation(new ClientRecv())
-            })
-        },
-    }
-}
+                tracer.setId(id);
+
+                const metadataKeys = Object.keys(metadata);
+                metadataKeys.forEach((key) => {
+                    tracer.recordBinary(key, metadata[key]);
+                });
+
+                tracer.recordAnnotation(new ClientRecv());
+            });
+        }
+    };
+};

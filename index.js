@@ -2,4 +2,4 @@
  * Launch proxy server.
  */
 
-require('./src/listen')()
+require('./src/listen')();

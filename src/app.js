@@ -1,13 +1,13 @@
-// Load environment configuration
-
 const redis = require('redis');
 const cookieParser = require('cookie-parser')();
+const bodyParser = require('body-parser');
 
 // Setup Express application
 const app = require('express')();
 
 // // Setup Middleware
 app.use(cookieParser);
+app.use(bodyParser.urlencoded({ extended: false }));
 
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);

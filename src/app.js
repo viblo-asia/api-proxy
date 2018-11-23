@@ -1,44 +1,27 @@
-const redis = require('redis');
-const cookieParser = require('cookie-parser')();
-const bodyParser = require('body-parser');
+import express from 'express';
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
-// Setup Express application
-const app = require('express')();
+import session from './session';
+import csrf from './middlewares/csrf';
+import proxy from './middlewares/proxy';
 
-// // Setup Middleware
-app.use(cookieParser);
-app.use(bodyParser.urlencoded({ extended: false }));
-
-const session = require('express-session');
-const RedisStore = require('connect-redis')(session);
-const csrf = require('./csrf');
-const {
-    APP_KEY,
+import {
     TRUST_PROXIES,
-    ETAG_ENABLE,
-    REDIS_HOST,
-    REDIS_PORT
-} = require('./config');
+    ETAG_ENABLE
+} from './env';
+
+const app = express();
 
 app.set('trust proxy', TRUST_PROXIES);
 app.set('etag', ETAG_ENABLE);
 
-app.use(session({
-    secret: APP_KEY,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        maxAge: 86400000
-    },
-    store: new RedisStore({
-        client: redis.createClient({
-            host: REDIS_HOST,
-            port: REDIS_PORT
-        })
-    })
-}));
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(session);
 
 app.use(csrf);
+app.use(proxy);
 
 // Handle XSRF token error
 app.use((err, req, res, next) => {
@@ -51,4 +34,4 @@ app.use((err, req, res, next) => {
     });
 });
 
-module.exports = app;
+export default app;

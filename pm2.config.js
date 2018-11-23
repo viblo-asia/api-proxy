@@ -3,13 +3,12 @@ const instances = process.env.NODE_INSTANCES !== 'max' ? parseInt(process.env.NO
 module.exports = {
     apps: [
         {
-            name: 'viblo-proxy',
+            name: 'proxy',
             script: 'index.js',
+            cwd: '/proxy',
             instances,
             exec_mod: 'cluster',
-            env: {
-                NODE_ENV: 'production'
-            }
+            node_args: '-r esm'
         }
     ]
 };

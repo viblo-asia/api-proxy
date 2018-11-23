@@ -1,13 +1,13 @@
-FROM node:8-alpine
+FROM node:10-alpine
 
-WORKDIR /srv
+WORKDIR /proxy
 
 ENV NODE_ENV=production
 ENV PORT=3000
 
 COPY package.json yarn.lock ./
-COPY index.js src ./
-COPY src ./src
+
+COPY . .
 
 RUN yarn --production --frozen-lockfile && yarn cache clean
 

@@ -1,6 +1,4 @@
-const envalid = require('envalid');
-
-const {
+import {
     makeValidator,
     cleanEnv,
     EnvError,
@@ -10,7 +8,7 @@ const {
     url,
     bool,
     num
-} = envalid;
+} from 'envalid';
 
 const commaArray = makeValidator((input) => {
     if (typeof input !== 'string') {
@@ -21,18 +19,19 @@ const commaArray = makeValidator((input) => {
 
 const base64Str = makeValidator((input) => {
     if (typeof input !== 'string' || input.length === 0) {
-        throw new EnvError(`Not a string: "${input}"`);
+        throw new EnvError(`"${input}" is not a string`);
     }
-    // Decode Laravel-style base64-encoded key
-    if (input.startsWith('base64:')) {
-        return Buffer.from(input.substr(7), 'base64').toString('utf8');
+
+    try {
+        return Buffer.from(input, 'base64').toString('utf8');
+    } catch (e) {
+        throw new EnvError(`String was not correctly encoded: "${input}"`);
     }
-    return input.toString();
 });
 
-module.exports = cleanEnv(process.env, {
+const envs = cleanEnv(process.env, {
     APP_KEY: base64Str({
-        desc: 'Encryption key'
+        desc: 'Encryption key, base64 encoded'
     }),
     HOST: host({
         default: '0.0.0.0',
@@ -42,20 +41,16 @@ module.exports = cleanEnv(process.env, {
         default: 3000,
         desc: 'Application port'
     }),
-    ZIPKIN_HOST: host({
-        default: '127.0.0.1',
-        desc: 'Zipkin tracer host'
+    PROXY_TARGET: url({
+        desc: 'Target URL for proxy'
     }),
-    ZIPKIN_ENABLED: bool({
-        default: false
+    PROXY_PREFIX: str({
+        default: '/api',
+        desc: 'Path rewrite prefix for proxy'
     }),
-    ZIPKIN_PORT: port({
-        default: 9411,
-        desc: 'Zipkin tracer port'
-    }),
-    SERVICE_NAME: str({
-        default: 'api-proxy',
-        desc: 'Application service name'
+    PROXY_PREFIX_STRIP: bool({
+        default: true,
+        desc: 'Whether to strip off the prefix from the request'
     }),
     TRUST_PROXIES: commaArray({
         default: 'loopback',
@@ -64,10 +59,6 @@ module.exports = cleanEnv(process.env, {
     ETAG_ENABLE: bool({
         default: false,
         desc: 'Enables Etag generation for responses'
-    }),
-    XSRF_TOKEN_COOKIE: str({
-        default: 'XSRF-TOKEN',
-        desc: 'XSRF token cookie name'
     }),
     AUTH_TOKEN_COOKIE: str({
         default: 'Auth',
@@ -84,18 +75,22 @@ module.exports = cleanEnv(process.env, {
     REDIS_PORT: port({
         default: 6379,
         desc: 'Redis port'
-    }),
-    PROXY_TARGET: url({
-        desc: 'Target URL for proxy'
-    }),
-    PROXY_PREFIX: str({
-        default: '',
-        desc: 'Path rewrite prefix for proxy'
-    }),
-    PROXY_TARGET_NAME: str({
-        default: '',
-        desc: 'Proxy target service name'
     })
 }, {
     strict: true
 });
+
+export const {
+    APP_KEY,
+    HOST,
+    PORT,
+    TRUST_PROXIES,
+    ETAG_ENABLE,
+    AUTH_TOKEN_COOKIE,
+    SESSION_COOKIE_MAX_AGE,
+    REDIS_HOST,
+    REDIS_PORT,
+    PROXY_TARGET,
+    PROXY_PREFIX,
+    PROXY_PREFIX_STRIP
+} = envs;

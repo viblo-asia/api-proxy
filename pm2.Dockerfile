@@ -1,15 +1,15 @@
-FROM keymetrics/pm2:8-alpine
+FROM keymetrics/pm2:10-alpine
 
-WORKDIR /srv
+WORKDIR /proxy
 
 ENV NODE_ENV=production
 ENV PORT=3000
 
 COPY package.json yarn.lock ./
-COPY index.js pm2.config.js src ./
-COPY src ./src
 
 RUN yarn --production --frozen-lockfile && yarn cache clean
+
+COPY . .
 
 EXPOSE 3000
 
